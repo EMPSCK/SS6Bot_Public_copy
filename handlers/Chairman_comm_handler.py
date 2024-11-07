@@ -399,9 +399,9 @@ async def handle_text_message(message: types.Message):
         if active_comp is None:
             return await message.answer('❌Ошибка. Необходимо задать активный турнир')
 
-        chairmans_groups_lists[message.from_user.id] = active_comp, group_list
         data = {'compId': active_comp, "regionId": 78, "status": 12, "groupList": group_list}
-        ans = await generation_logic.get_ans(data)
+        ans, json = await generation_logic.get_ans(data)
+        chairmans_groups_lists[message.from_user.id] = active_comp, group_list, json
         await message.answer(f'📋Введенные группы: {", ".join([str(i) for i in group_list])}\n\n' + ans, reply_markup=chairmans_kb.generation_kb)
     except Exception as e:
         print(e)
@@ -411,12 +411,12 @@ async def handle_text_message(message: types.Message):
 @router.callback_query(F.data == 'regenerate_list')
 async def f4(callback: types.CallbackQuery):
     try:
-        active_comp, group_list = chairmans_groups_lists[callback.from_user.id]
+        active_comp, group_list, prev_ans = chairmans_groups_lists[callback.from_user.id]
         if active_comp is None:
             return await callback.answer('❌Ошибка. Необходимо задать активный турнир')
 
         data = {'compId': active_comp, "regionId": 78, "status": 12, "groupList": group_list}
-        ans = await generation_logic.get_ans(data)
+        ans, json = await generation_logic.get_ans(data)
         await callback.message.edit_text(f'📋Введенные группы: {", ".join([str(i) for i in group_list])}\n\n' + ans, reply_markup=chairmans_kb.generation_kb)
     except Exception as e:
         print(e)
@@ -453,6 +453,8 @@ async def f4(callback: types.CallbackQuery):
                     await callback.message.bot.send_message(scrutineer_id, f"Сообщение от пользователя {name}")
                     await callback.message.bot.send_message(scrutineer_id, callback.message.text)
                     await callback.message.delete_reply_markup()
+                    prev_json = chairmans_groups_lists[callback.from_user.id][2]
+                    await chairman_queries.set_group_counter(prev_json, active_compId_chairman)
                     await callback.message.answer('✅Информация отправлена РСК')
                 else:
                     await callback.message.answer('❌Ошибка. Пожалуйста отправьте список еще раз')

@@ -100,5 +100,5 @@ async def get_markup_EV(user_id, text):
 
 generation_button_01 = InlineKeyboardButton(text="Отправить РСК", callback_data='send_generate_rsk')
 generation_button_02 = InlineKeyboardButton(text="Перегенерировать", callback_data='regenerate_list')
-generation_button_03 = [InlineKeyboardButton(text="Звершить генерацию", callback_data='end_generation_proces')]
+generation_button_03 = [InlineKeyboardButton(text="Выйти из режима генерации", callback_data='end_generation_proces')]
 generation_kb = InlineKeyboardMarkup(inline_keyboard=[[generation_button_01, generation_button_02], generation_button_03])

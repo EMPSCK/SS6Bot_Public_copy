@@ -1161,3 +1161,21 @@ async def ids_to_names(judges, active_comp):
             r.append(f'{ans["lastName"]} {ans["firstName"]}')
         return ', '.join(r)
 
+async def set_group_counter(data, compId):
+    conn = pymysql.connect(
+        host=config.host,
+        port=3306,
+        user=config.user,
+        password=config.password,
+        database=config.db_name,
+        cursorclass=pymysql.cursors.DictCursor
+    )
+    with conn:
+        cur = conn.cursor()
+        for groupId in data:
+            judges_list = data[groupId]['judge_id']
+            for judgeId in judges_list:
+                cur.execute(f"update competition_judges set group_counter = group_counter + 1 WHERE CompId = {compId} and id = {judgeId}")
+                conn.commit()
+    return 1
+

@@ -51,24 +51,25 @@ async def get_ans(data):
         i['SPORT_Category_decoded'] = await decode_category(i['SPORT_Category'])
         all_judges_list[i['id']] = i
 
-    s = 0
+    all_judges_list = dict(sorted(all_judges_list.items(), key=lambda item: item[1]['group_counter']))
 
+    all_groups_finish_jud = []
+    sucess_result = 0
     # 3. начинаем работать с каждой группой из переданного списка
     for i in group_list:
         json_end = dict()
-
-        s += 1
-        if s == 0: sucess_result = 0
 
         """
         Если нам передали несколько групп, то есть мы должны генерить в параллель
         и если это уже не первая группа и предыдущая была сгенерена успешно
         тогда из общего списка судей выкидываем всех кого нагенерили в панельки ранее
         """
-        if s > 1 and sucess_result == 1:
+        if sucess_result == 1:
             group_all_judges_list = all_judges_list.copy()
             for j in group_finish_judges_list:
-                group_all_judges_list.pop(j, None)
+                all_groups_finish_jud.append(j)
+            for jj in all_groups_finish_jud:
+                group_all_judges_list.pop(jj, None)
             group_finish_judges_list = []
             regions = {}
             sucess_result = 0
@@ -79,7 +80,8 @@ async def get_ans(data):
 
         # определяем параметры группы
         n_judges, min_category = i[1], i[2]
-        if min_category is None: min_category = 0
+        if min_category is None:
+            min_category = 0
         #otd_num = group_list[i]['otd_num']
 
         group_number = i[0]
@@ -140,6 +142,7 @@ async def get_ans(data):
                     sucess_result = 0
                     json_end['group_number'] = group_number
                     json_end['status'] = "fail"
+                    json_end['judge_id'] = []
                     json_end['msg'] = 'Не удалось сформировать бригаду с учетом заданных условий. Попробуйте сгенерирвать еще раз или уменьшить количество судей в бригаде.'
                     break
             else:
@@ -152,6 +155,7 @@ async def get_ans(data):
             sucess_result = 0
             json_end['group_number'] = group_number
             json_end['status'] = "fail"
+            json_end['judge_id'] = []
             json_end['msg'] = 'Не удалось сформировать бригаду с учетом заданных условий. Попробуйте сгенерирвать еще раз или уменьшить количество судей в бригаде'
 
         json_export[group_number] = json_end
@@ -159,7 +163,7 @@ async def get_ans(data):
     #json.loads(json.dumps(json_export))
     ans = await json_to_message(json_export, data)
     #print(regions)
-    return ans
+    return ans, json_export
 
 
 #получить параметр групп по турниру и номеру
@@ -298,7 +302,7 @@ async def get_all_judges_yana(compId):
         with conn:
             cur = conn.cursor()
             cur.execute(
-               f"SELECT id, lastName, firstName, SPORT_Category, RegionId, Club, bookNumber FROM competition_judges WHERE compId = {compId} and active = 1")  # выбираем только активных на данный момент судей
+               f"SELECT id, lastName, firstName, SPORT_Category, RegionId, Club, bookNumber, group_counter FROM competition_judges WHERE compId = {compId} and active = 1")  # выбираем только активных на данный момент судей
             data = cur.fetchall()
             return data
 
@@ -349,8 +353,24 @@ async def judges_black_list_filter(all_judges_list, category_black_list):
 
 #функция генерирует случайного судью
 async def get_random_judge(group_all_judges_list):
-  random_number = random.randint(0, len(group_all_judges_list.keys()) - 1) #генерация случайного индекса
-  return group_all_judges_list[list(group_all_judges_list.keys())[random_number]] #достаем из общего списка судей параметры по судье исходя из случайного индекса
+    """
+    random_number = random.randint(0, len(group_all_judges_list.keys()) - 1) #генерация случайного индекса
+
+    return group_all_judges_list[list(group_all_judges_list.keys())[random_number]] #достаем из общего списка судей параметры по судье исходя из случайного индекса
+    """
+    for i in group_all_judges_list:
+        min_counter = 10**6
+        a = group_all_judges_list[i]['group_counter']
+        if a < min_counter:
+            min_counter = a
+
+    for j in group_all_judges_list:
+        if group_all_judges_list[j]['group_counter'] > min_counter:
+            group_all_judges_list.pop(j, None)
+
+    random_number = random.randint(0, len(group_all_judges_list.keys()) - 1)
+    return group_all_judges_list[list(group_all_judges_list.keys())[random_number]]
+
 
 #функция удаляет всех судей с таким же клубом
 async def delete_club_from_judges(list_of_judges, club_name):
