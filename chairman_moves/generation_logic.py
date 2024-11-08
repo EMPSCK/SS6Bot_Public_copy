@@ -24,7 +24,7 @@ async def get_ans(data):
     #Все группы не пробились
     if group_list == []:
         ans = await json_to_message(json_export, data)
-        return ans
+        return ans, json_export
 
     judge_counter_list = await get_future_tables()
     relatives_list = await get_relative_list(data['compId'])

@@ -1179,3 +1179,21 @@ async def set_group_counter(data, compId):
                 conn.commit()
     return 1
 
+async def clean_group_counter(user_id):
+    try:
+        conn = pymysql.connect(
+            host=config.host,
+            port=3306,
+            user=config.user,
+            password=config.password,
+            database=config.db_name,
+            cursorclass=pymysql.cursors.DictCursor
+        )
+        with conn:
+            cur = conn.cursor()
+            active_comp = await general_queries.get_CompId(user_id)
+            cur.execute(f"update competition_judges set group_counter = 0 where compId = {active_comp}")
+            conn.commit()
+            return 1
+    except:
+        return 0

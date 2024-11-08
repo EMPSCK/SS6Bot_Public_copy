@@ -107,5 +107,5 @@ async def update_ftsarr_judges_list(message: types.Message):
 
 @router.message(Command("help"))
 async def update_ftsarr_judges_list(message: types.Message):
-    text = '''<b>Список команд:</b>\n/judges - начать загрузку списка судей, chairman/scrutineer\n\n/clean - удалить загруженных внутри соревнования, chairman/scrutineer\n\n/free - показать свободных после отправки последнего списка, chairman/scrutineer\n\n/updateftsarrlist - обновить общий список судей, Митя1/Митя2/Артем1/Артем2\n\n/delactive - снести активность всем судьям внутри соревнования, chairman/scrutineer'''
+    text = '''<b>Список команд:</b>\n/judges - начать загрузку списка судей, chairman/scrutineer\n\n/clean - удалить загруженных внутри соревнования, chairman/scrutineer\n\n/free - показать свободных после отправки последнего списка, chairman/scrutineer\n\n/updateftsarrlist - обновить общий список судей, Митя1/Митя2/Артем1/Артем2\n\n/delactive - снести активность всем судьям внутри соревнования, chairman/scrutineer\n\n/cleancounter - обнулить счетчик судейств в группах, chairman/scrutineer'''
     await message.answer(text, parse_mode='HTML')

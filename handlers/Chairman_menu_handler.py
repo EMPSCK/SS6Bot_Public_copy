@@ -373,3 +373,13 @@ async def cmd_start(call: types.CallbackQuery, state: FSMContext):
         await state.clear()
         await call.message.answer('При загрузке списка возникла ошибка, попробуйте еще раз через команду /judges')
 
+
+@router.message(Command("cleancounter"))
+async def cmd_start(message: Message, state: FSMContext):
+    user_status = await get_user_status_query.get_user_status(message.from_user.id)
+    if user_status == 3 or user_status == 2:
+        r = await chairman_queries.clean_group_counter(message.from_user.id)
+        if r == 1:
+            await message.answer("Действие обработано")
+        else:
+            await message.answer("❌Ошибка")
