@@ -5,6 +5,7 @@ from queries import chairman_queries
 import config
 import pymysql
 
+
 async def check_list(text, user_id):
     try:
         s = ''

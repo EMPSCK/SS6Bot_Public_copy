@@ -420,8 +420,8 @@ async def f4(callback: types.CallbackQuery):
         await callback.message.edit_text(f'📋Введенные группы: {", ".join([str(i) for i in group_list])}\n\n' + ans, reply_markup=chairmans_kb.generation_kb)
     except Exception as e:
         print(e)
-        await callback.answer('❌Ошибка')
-
+        await callback.answer('❌Изменения не обнаружены')
+g
 
 @router.callback_query(F.data == 'end_generation_proces')
 async def f4(callback: types.CallbackQuery):

@@ -1142,6 +1142,7 @@ async def create_new_booknum(compid):
         else:
             return min(a) - 1
 
+
 async def ids_to_names(judges, active_comp):
     conn = pymysql.connect(
         host=config.host,
@@ -1161,6 +1162,7 @@ async def ids_to_names(judges, active_comp):
             r.append(f'{ans["lastName"]} {ans["firstName"]}')
         return ', '.join(r)
 
+
 async def set_group_counter(data, compId):
     conn = pymysql.connect(
         host=config.host,
@@ -1178,6 +1180,7 @@ async def set_group_counter(data, compId):
                 cur.execute(f"update competition_judges set group_counter = group_counter + 1 WHERE CompId = {compId} and id = {judgeId}")
                 conn.commit()
     return 1
+
 
 async def clean_group_counter(user_id):
     try:

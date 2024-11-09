@@ -38,7 +38,7 @@ async def load_list(tg_id, text, compid):
                     f"SELECT firstName from competition_judges WHERE compId = {compid} and ((lastName2 = '{last_name}' and firstName2 = '{name}') OR (lastName = '{last_name}' and firstName = '{name}'))") == 1:
 
                     cur.execute(
-                        f"UPDATE competition_judges SET active = 1 WHERE compId = {compid} and ((lastName2 = '{last_name}' and firstName2 = '{name}') OR (lastName = '{last_name}' and firstName = '{name}'))")
+                        f"UPDATE competition_judges SET active = 1, is_use = 0 WHERE compId = {compid} and ((lastName2 = '{last_name}' and firstName2 = '{name}') OR (lastName = '{last_name}' and firstName = '{name}'))")
                     conn.commit()
                     Chairman_menu_handler.last_added_judges[tg_id].append([last_name, name])
                     continue
